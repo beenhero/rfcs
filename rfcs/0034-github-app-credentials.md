@@ -3,7 +3,7 @@ title: Credential lifecycle and GitHub App access for Enterprise Agents
 authors:
   - Free Wortley
 created: 2026-09-05
-last_updated: 2026-09-11
+last_updated: 2026-09-14
 status: draft
 issue:
 rfc_pr: https://github.com/openclaw/rfcs/pull/68
@@ -43,6 +43,8 @@ The Installation selects a proposed `CredentialGatewayDriver` for trusted mediat
 
 Each broker access lease binds genuine service-owned **Work**, its exact Agent/revision and execution assignment, or separately admitted preparation. Current operation grants, cancellation/withdrawal, protected custody, durable effect records, and unknown-outcome handling are required from the first read. A work ID or caller-supplied handle cannot establish authority. The [broker contract](0034/credential-broker-v1-spec.md) and [series overview](0027/runtime-access-overview.md) define these boundaries.
 
+The Agent receives a scoped, opaque **proxy credential**, invalid at GitHub. On each request, the mediator checks that credential, independently verified execution/Work origin, and current online OCC permission before replacing it with the real installation token on the trusted upstream connection. The App key and real token never enter production Agent execution. The [proxy credential contract](0034/github-app-v1-spec.md#scoped-proxy-credential) defines delivery, lifetime, and denial behavior.
+
 ### Deliver in three stages
 
 | Stage | Release scope |
@@ -53,7 +55,23 @@ Each broker access lease binds genuine service-owned **Work**, its exact Agent/r
 
 Stages A and B use root Work. Subordinate helpers may share its scope and cancellation only after that context is qualified; root-only execution may qualify first. Separately admitted durable children belong to stage C. These stages have [separate acceptance gates](0034/lifecycle.md#acceptance-matrix).
 
-![Credential requests pass through a trusted connector and mediator before GitHub.](0034/credential-flow.png)
+```mermaid
+flowchart LR
+    Agent["Agent / Git client<br/>Opaque proxy credential only"]
+    subgraph Trusted["Trusted OCE outside Agent execution"]
+        Connector["Host connector<br/>Verify execution and original Work"]
+        Mediator["Credential gateway<br/>Validate credential and operation<br/>Strip caller auth; insert real token"]
+        OCC["OCC authority<br/>Online decision for each dispatch"]
+        Publisher["Stage B publisher<br/>Exact human-approved candidate<br/>Separate push and PR effects"]
+    end
+    GitHub["GitHub<br/>Repository and token scope"]
+    Agent -->|"A: metadata / clone / fetch<br/>with proxy credential"| Connector
+    Connector -->|"Protected origin"| Mediator
+    OCC --> Mediator
+    Agent -->|"B: candidate"| Publisher
+    Publisher -->|"Approved effect"| Mediator
+    Mediator -->|"Verified upstream TLS<br/>Real installation token"| GitHub
+```
 
 ### Authorize publication
 

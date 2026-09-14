@@ -394,6 +394,8 @@ Separate future qualification; these modes are not MVP requirements or defaults.
   credential from an external host and B, including B on A's host/Pod where
   supported. GitHub and broker deny copies.
 - A's closed work cannot borrow its successor's channel.
+- Replay a valid opaque proxy credential from another execution while its
+  original Agent succeeds; the protected origin must mismatch and deny.
 
 ### M2: Boundary enforcement
 
@@ -401,6 +403,12 @@ Separate future qualification; these modes are not MVP requirements or defaults.
 - Deny raw-token endpoints, direct/tunnel fallback, and forged origin/turn
   assertions.
 - Verify key custody and the runtime-owned local mapping.
+- Deny missing, unknown, expired, revoked, wrong-Work, wrong-execution, and
+  wrong-repository proxy credentials, including ambiguous authentication fields.
+  No rejection may fall back to anonymous access, a public placeholder, or native
+  token delivery. Strip the proxy credential before inserting the real upstream
+  token; neither real-token values nor protected material enter Agent-visible
+  configuration, files, environment, responses, or diagnostics.
 
 ### M3: Protocol scope
 
@@ -448,6 +456,11 @@ Future optional broker profile only; excluded from the first GitHub release.
    under the same root Work and deny dispatch on OCC outage. In B, add selected
    coding reads and human Approve and publish; observe separate push and draft-PR
    outcomes. In C, add separately admitted children and selected stop/start flows.
+   Exercise the running Agent's pinned client with only its proxy credential:
+   observe valid credential, protected origin, and current permission checks and
+   real-token substitution at the trusted upstream boundary. Token replacement
+   preserves the still-valid original proxy binding; its expiry or revocation
+   still denies. A pre-start checkout alone does not prove this ongoing path.
 4. Close that work and observe denial while the process survives, plus separate
    provider cleanup. New work cannot revive old requests.
 5. Separately observe required execution termination; restart and recover an

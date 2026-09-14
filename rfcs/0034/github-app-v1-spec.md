@@ -441,6 +441,44 @@ Preparation helpers use a separate read-only identity.
 
 ## Mediated origin and routing
 
+### Scoped proxy credential
+
+The first production client path uses a cryptographically unguessable, opaque
+**proxy credential**: fake at GitHub, meaningful only to the trusted credential
+gateway. It presents an existing broker access lease; it is neither a serialized
+issuer/material handle nor a connector-issued origin proof. It creates no new
+IAM grant or public token resource.
+
+After genuine Work or separate preparation admission, the gateway associates
+the credential with the exact Installation/Namespace, Agent/revision, execution
+assignment and incarnation, original Work or preparation, admitted repository,
+allowed operations, access-lease generation, and finite deadline. The association
+lives in trusted broker state and cannot be changed by the caller. Deliver the
+credential only to that admitted execution through the trusted launch or
+credential-delivery path. Enrollment alone does not authorize issuance or use.
+
+The qualified Git/gh client sends the credential through its supported HTTP
+authentication form. Qualification fixes its encoding, maximum length, and
+unambiguous parsing; duplicate or conflicting authentication fields deny. Each
+request requires all three: a valid proxy credential, the independently verified
+protected origin below matching its original execution and Work, and current
+online OCC authorization for the actual repository operation. Possession alone
+cannot establish origin or permission. Missing, unknown, expired, revoked, or
+mismatched credentials deny without anonymous, public-placeholder, or native-token
+fallback. A copied credential cannot be used from another execution while its
+original holder remains authorized.
+
+Real GitHub-token refresh may preserve the same still-valid proxy credential;
+it cannot widen scope, extend that credential's deadline, or reopen closed access.
+Proxy-credential renewal or replacement requires current authority and preserves
+the original binding within the existing lease/enforcement renewal contract.
+Closure or revocation denies subsequent dispatch even while a real token remains
+valid. Retain cleanup and already accepted upstream effect outcomes separately;
+local withdrawal cannot cancel an effect already accepted by GitHub or retract
+delivered data. Credential values never enter URLs, ordinary records, logs, or
+audit payloads. Agent-visible delivery contains only the proxy credential, never
+the App key, installation token, or protected issuer capability.
+
 ### Trusted identity
 
 The proposed trusted host connector keeps its SPIFFE mTLS key outside Agent
@@ -515,10 +553,12 @@ The proxy validates the full provider operation before choosing a token:
 
 - Construct upstream URLs from trusted enrollment data; reject redirects,
   ambiguous encodings/paths, host disagreement, and unsupported body semantics.
-- Strip caller cookies, proxy headers, and authorization before dispatch. The
-  qualified client path may omit Authorization or send a fixed public, nonsecret
-  placeholder required by the CLI; reject other credentials. Placeholders and
-  lease handles cannot authenticate origin.
+- Validate the selected [proxy credential](#scoped-proxy-credential) and reject
+  other or ambiguous authentication forms. Strip that credential and all caller
+  cookies, proxy headers, and authorization before constructing the upstream
+  request. Insert the real installation token only on the independently verified
+  GitHub TLS connection; never forward the proxy credential to GitHub. Neither
+  credential presentation nor an access-lease handle authenticates origin.
 - Bound request/response size, execution time, and pagination in the selected
   profile. Tokens must not enter downstream responses, headers, errors, logs, or
   artifacts.
