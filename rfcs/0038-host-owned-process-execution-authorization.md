@@ -316,6 +316,33 @@ a second ledger or terminal state machine:
 3. add the Codex adapter with conformance and live proof;
 4. propose command automation and immutable artifact publication separately.
 
+## Prototype evidence and its limits
+
+The following committed, redacted artifacts support the motivation and several
+security requirements in this proposal. They record real owner-wallet and
+Gateway drills rather than simulated tests:
+
+| Drill | Observed result |
+| --- | --- |
+| [Immutable one-time automation](https://github.com/consenlabs/sigil/blob/09223a8542e644cdbb7dee75ccd2d776b226e0af/docs/superpowers/evidence/2026-09-11-butter-immutable-automation-smoke.json) | A real owner signature was verified from a cold read; mutating the provenance file after publication did not change the bytes executed; the authorization record preceded process completion. |
+| [Scheduled standing-grant lifecycle](https://github.com/consenlabs/sigil/blob/bfe6ec0396bc73772b2aed85de35a0ac35278a3d/docs/superpowers/evidence/2026-09-12-butter-grouped-standing-live-drill.json) | The no-approval control timed out without starting a process; one real signature covered four distinct occurrences, including three promptless reuses; revocation survived a Gateway restart. |
+| [Manual standing-grant reuse](https://github.com/consenlabs/sigil/blob/06e93ac627b4a7b7e120e7489996d589a5d5fc28/docs/superpowers/evidence/2026-09-12-butter-manual-standing-live-drill.json) | Two distinct manual occurrences completed under one signature; the second created no approval request; cold ledger and host receipt correlations matched. |
+
+These drills establish that immutable execution commitments, promptless bounded
+reuse, fail-closed absence, and durable revocation are useful and testable. They
+do **not** establish that the contract proposed here is implemented. The
+prototype used a broad approval resolver, a separate proof ledger, an
+automation-specific adapter, and a non-secret proof reference in a host receipt.
+This RFC deliberately rejects or narrows those choices in favor of the RFC 0011
+host-owned lifecycle and proof-free host records.
+
+Accordingly, this evidence is consumer and requirements evidence only. It does
+not prove the proposed Codex adapter's executable envelope, the new provider
+registration contract, generic-allow suppression, or coverage of any host path
+other than the drilled automation prototype. Every implementation claim in the
+next section remains an after-change acceptance requirement and must be repeated
+on the accepted runtime.
+
 ## Validation
 
 The implementation must prove at least:
