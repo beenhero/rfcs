@@ -6,7 +6,7 @@ created: 2026-09-15
 last_updated: 2026-09-15
 status: draft
 issue:
-rfc_pr:
+rfc_pr: https://github.com/openclaw/rfcs/pull/73
 ---
 
 # Proposal: Host-Owned External Authorization for Process Execution
